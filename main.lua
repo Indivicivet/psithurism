@@ -18,9 +18,17 @@ function love.load()
 	t = 0
 	
 	love.mouse.setVisible(false)
+
+	PLAYER_SIZE = 30
+	PLAYER_HALFWIDTH = PLAYER_SIZE / 2
 	
-	--screen = SCREEN.game -- for testing
-	screen = SCREEN.splash -- for release
+	PLAYER_MOVESPEED = 250
+
+	PLAYER1 = {x=250, y=250}
+	PLAYER2 = {x=300, y=600}
+	
+	screen = SCREEN.game -- for testing
+	--screen = SCREEN.splash -- for release
 end
 
 
@@ -43,7 +51,7 @@ end
 
 
 function love.draw()
-	love.graphics.setBackgroundColor(0.5, 0.5, 0.5)
+	love.graphics.setBackgroundColor(0.2, 0.2, 0.2)
 	
 	if screen == SCREEN.splash then
 		-- splash screen
@@ -56,6 +64,13 @@ function love.draw()
 	end
 	
 	love.graphics.setColor(1, 1, 1)
+	
+	love.graphics.setColor(1, 0, 1)
+	love.graphics.rectangle("fill", PLAYER1.x - PLAYER_HALFWIDTH, PLAYER1.y - PLAYER_HALFWIDTH, PLAYER_SIZE, PLAYER_SIZE)
+	
+	love.graphics.setColor(1, 1, 0)
+	love.graphics.rectangle("fill", PLAYER2.x - PLAYER_HALFWIDTH, PLAYER2.y - PLAYER_HALFWIDTH, PLAYER_SIZE, PLAYER_SIZE)
+	
 	-- mouse
 	draw_cursor()
 end
@@ -66,6 +81,31 @@ function love.update(dt)
 	
 	if screen == SCREEN.splash then
 		return
+	end
+	
+	if love.keyboard.isDown("w") then
+		PLAYER1.y = PLAYER1.y - PLAYER_MOVESPEED * dt;
+	end
+	if love.keyboard.isDown("a") then
+		PLAYER1.x = PLAYER1.x - PLAYER_MOVESPEED * dt;
+	end
+	if love.keyboard.isDown("s") then
+		PLAYER1.y = PLAYER1.y + PLAYER_MOVESPEED * dt;
+	end
+	if love.keyboard.isDown("d") then
+		PLAYER1.x = PLAYER1.x + PLAYER_MOVESPEED * dt;
+	end
+	if love.keyboard.isDown("up") then
+		PLAYER2.y = PLAYER2.y - PLAYER_MOVESPEED * dt;
+	end
+	if love.keyboard.isDown("left") then
+		PLAYER2.x = PLAYER2.x - PLAYER_MOVESPEED * dt;
+	end
+	if love.keyboard.isDown("down") then
+		PLAYER2.y = PLAYER2.y + PLAYER_MOVESPEED * dt;
+	end
+	if love.keyboard.isDown("right") then
+		PLAYER2.x = PLAYER2.x + PLAYER_MOVESPEED * dt;
 	end
 end
 
@@ -101,6 +141,5 @@ function love.keypressed(key, scancode, isrepeat)
 		begin_game()
 		return
 	end
-	
 	
 end
