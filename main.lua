@@ -26,24 +26,13 @@ function love.load()
 	-- MUSIC:setLooping(true)
 	-- MUSIC:play()
 	
+	WIND_VANE = {x=1000, y=150, scale=0.5}
+	
 	t = 0
 	
 	love.mouse.setVisible(false)
-
-	PLAYER1 = {x=250, y=250, children={}, radius=30, owner=1}
-	PLAYER2 = {x=1000, y=600, children={}, radius=30, owner=2}
-	
-	player_selections = {PLAYER1, PLAYER2}
-	
-	pixel_objects = {} -- map from pixel pos 1D to what object lives there
-	
-	wind = {x=0, y=100}
-	
-	WIND_VANE = {x=1000, y=150, scale=0.5}
 	
 	screen = SCREEN.splash
-	turn = TURN.p1
-	moving_time = 0
 	
 	begin_game() -- for testing
 end
@@ -123,8 +112,8 @@ end
 
 function update_pixel_objects()
 	pixel_objects = {}
-	add_node_and_children_to_pixel_objects(PLAYER1)
-	add_node_and_children_to_pixel_objects(PLAYER2)
+	add_node_and_children_to_pixel_objects(player1)
+	add_node_and_children_to_pixel_objects(player2)
 end
 
 
@@ -145,8 +134,8 @@ function love.draw()
 	
 	love.graphics.printf(TURN_STRS[turn], 50, 625, 300, "center")
 	
-	draw_node_and_children(PLAYER1)
-	draw_node_and_children(PLAYER2)
+	draw_node_and_children(player1)
+	draw_node_and_children(player2)
 	
 	-- selected indicator
 	love.graphics.setColor(1, 1, 1, 0.5)
@@ -200,11 +189,17 @@ end
 function begin_game()
 	screen = SCREEN.game
 	
-	-- testing
-	-- add_child(
-	-- 	PLAYER1, 200, 10, 15,
-	-- 	{PLAYER1.x, PLAYER1.y, PLAYER1.x + 50, PLAYER1.y + 50, PLAYER1.x + 200, PLAYER1.y + 10}
-	-- )
+	player1 = {x=250, y=250, children={}, radius=30, owner=1}
+	player2 = {x=1000, y=600, children={}, radius=30, owner=2}
+	
+	player_selections = {player1, player2}
+	
+	pixel_objects = {} -- map from pixel pos 1D to what object lives there
+	
+	wind = {x=0, y=100}
+	
+	turn = TURN.p1
+	moving_time = 0
 end
 
 
@@ -287,6 +282,10 @@ end
 function love.keypressed(key, scancode, isrepeat)
 	if key == "escape" then
 		love.event.quit()
+	end
+	
+	if key == "r" then
+		begin_game()
 	end
 	
 	-- if key == "m" then
