@@ -18,6 +18,8 @@ function love.load()
 	
 	CLICK_RADIUS = 200
 	CLICK_RADIUS_NICE = 250
+	TRAVEL_TIME = 1
+	MAX_VELOCITY = CLICK_RADIUS / TRAVEL_TIME
 	
 	-- MUSIC = love.audio.newSource("sound/bgmusic.mp3", "stream")
 	-- MUSIC:setLooping(true)
@@ -170,11 +172,23 @@ end
 
 
 function attempt_to_make_move(selected, click_x, click_y)
-	if hypot(selected.x - click_x, selected.y - click_y) < CLICK_RADIUS_NICE then
+	dx = click_x - selected.x
+	dy = click_y - selected.y
+	if hypot(dx, dy) < CLICK_RADIUS_NICE then
+		vx = dx / CLICK_RADIUS
+		vy = dy / CLICK_RADIUS
+		
+		-- check if we did the "nice clicking" but want to scale down to 1:
+		v2 = hypot(vx, vy)
+		if v2 > 1 then
+			vx = vx / v2
+			vy = vy / v2
+		end
+		
 		add_child(
 			selected,
-			math.random(10, 200),
-			math.random(-50, 50),
+			vx * MAX_VELOCITY,
+			vy * MAX_VELOCITY,
 			20,
 			{}
 		)
