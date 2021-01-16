@@ -34,6 +34,8 @@ function love.load()
 	
 	player_selections = {PLAYER1, PLAYER2}
 	
+	pixel_objects = {} -- map from pixel pos 1D to what object lives there
+	
 	screen = SCREEN.splash
 	turn = TURN.p1
 	moving_time = 0
@@ -61,6 +63,11 @@ end
 
 
 function draw_node_and_children(node)
+	if node.children ~= nil then
+		for i, child in ipairs(node.children) do
+			draw_node_and_children(child)
+		end
+	end
 	if node.owner == 1 then
 		love.graphics.setColor(1, 0, 1)
 	elseif node.owner == 2 then
@@ -70,17 +77,45 @@ function draw_node_and_children(node)
 	end
 	if node.backlink ~= nil and #node.backlink >= 4 then
 		love.graphics.line(node.backlink)
+	elseif node.parent ~= nil then
+		-- debug
+		r, g, b, a = love.graphics.getColor()
+		love.graphics.setColor(0.5, 0, 0)
+		love.graphics.line(node.parent.x, node.parent.y, node.x, node.y)
+		love.graphics.setColor(r, g, b, a)
 	end
 	love.graphics.circle("fill", node.x, node.y, node.radius)
 	if node == player_selections[1] or node == player_selections[2] then
 		love.graphics.setColor(1, 1, 1, 1)
 		love.graphics.circle("line", node.x, node.y, node.radius + 2)
 	end
-	if node.children ~= nil then
-		for i, child in ipairs(node.children) do
-			draw_node_and_children(child)
+end
+
+
+function add_node_and_children_to_pixel_objects(node)
+	if node.backlink ~= nil then
+		-- todo
+	end
+	-- fill in a circle within the square
+	for y_offs = -node.radius, node.radius do
+		for x_offs = -node.radius, node.radius do
+			if hypot(x_offs, y_offs) <= node.radius then
+				pixel_objects[(node.y + y_offs) * WIDTH + node.x + x_offs] = node
+			end
 		end
 	end
+	if node.children ~= nil then
+		for i, child in ipairs(node.children) do
+			add_node_and_children_to_pixel_objects(child)
+		end
+	end
+end
+
+
+function update_pixel_objects()
+	pixel_objects = {}
+	add_node_and_children_to_pixel_objects(PLAYER1)
+	add_node_and_children_to_pixel_objects(PLAYER2)
 end
 
 
@@ -198,14 +233,18 @@ function attempt_to_make_move(selected, click_x, click_y)
 end
 
 
-
 function love.mousepressed(x, y, button, istouch, presses)
 	if screen == SCREEN.splash then
 		begin_game()
 		return
 	end
 	
-	if turn == TURN.p1 then
+	update_pixel_objects() -- is this the place? todo :: scratch head
+	clicked_idx = y * WIDTH + x
+	clicked = pixel_objects[clicked_idx]
+	if clicked ~= nil and clicked.owner == turn then
+		player_selections[turn] = clicked
+	elseif turn == TURN.p1 then
 		if attempt_to_make_move(player_selections[1], x, y) then
 			turn = TURN.p1_moving
 		end
