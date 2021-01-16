@@ -91,6 +91,10 @@ function draw_node_and_children(node)
 	if node == player_selections[1] or node == player_selections[2] then
 		love.graphics.setColor(1, 1, 1, 1)
 		love.graphics.circle("line", node.x, node.y, node.radius + 2)
+		if node.owner == turn then
+			-- idk, do something to make it extra obvious :: todo improve
+			love.graphics.circle("line", node.x, node.y, node.radius + 8)
+		end
 	end
 end
 
