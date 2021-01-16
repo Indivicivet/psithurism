@@ -16,6 +16,9 @@ function love.load()
 		[TURN.p2_moving]="Player 2 is moving!"
 	}
 	
+	CLICK_RADIUS = 200
+	CLICK_RADIUS_NICE = 250
+	
 	-- MUSIC = love.audio.newSource("sound/bgmusic.mp3", "stream")
 	-- MUSIC:setLooping(true)
 	-- MUSIC:play()
@@ -24,11 +27,10 @@ function love.load()
 	
 	love.mouse.setVisible(false)
 
-	PLAYER1 = {x=250, y=250, children={}, radius=30}
-	PLAYER2 = {x=300, y=600, children={}, radius=30}
+	PLAYER1 = {x=250, y=250, children={}, radius=30, owner=1}
+	PLAYER2 = {x=300, y=600, children={}, radius=30, owner=2}
 	
-	player1_selected = PLAYER1
-	player2_selected = PLAYER2
+	player_selections = {PLAYER1, PLAYER2}
 	
 	screen = SCREEN.splash
 	turn = TURN.p1
@@ -57,16 +59,20 @@ end
 
 
 function draw_node_and_children(node)
+	if node.owner == 1 then
+		love.graphics.setColor(1, 0, 1)
+	elseif node.owner == 2 then
+		love.graphics.setColor(1, 1, 0)
+	else
+		love.graphics.setColor(1, 0, 0)
+	end
 	if node.backlink ~= nil and #node.backlink >= 4 then
 		love.graphics.line(node.backlink)
 	end
 	love.graphics.circle("fill", node.x, node.y, node.radius)
-	if node == player1_selected or node == player2_selected then
-		-- bit hacky
-		r, g, b, a = love.graphics.getColor()
+	if node == player_selections[1] or node == player_selections[2] then
 		love.graphics.setColor(1, 1, 1, 1)
 		love.graphics.circle("line", node.x, node.y, node.radius + 2)
-		love.graphics.setColor(r, g, b, a)
 	end
 	if node.children ~= nil then
 		for i, child in ipairs(node.children) do
@@ -93,11 +99,16 @@ function love.draw()
 	
 	love.graphics.print(TURN_STRS[turn], 50, 50)
 	
-	love.graphics.setColor(1, 0, 1)
 	draw_node_and_children(PLAYER1)
-	
-	love.graphics.setColor(1, 1, 0)
 	draw_node_and_children(PLAYER2)
+	
+	-- selected indicator
+	love.graphics.setColor(1, 1, 1, 0.5)
+	if turn == TURN.p1 then
+		love.graphics.circle("line", player_selections[1].x, player_selections[1].y, CLICK_RADIUS)
+	elseif turn == TURN.p2 then
+		love.graphics.circle("line", player_selections[2].x, player_selections[2].y, CLICK_RADIUS)
+	end
 	
 	-- mouse
 	draw_cursor()
@@ -130,12 +141,14 @@ function add_child(node, x_offs, y_offs, radius, backlink)
 		y=node.y + y_offs,
 		parent=node,
 		backlink=backlink,
-		radius=radius
+		radius=radius,
+		owner=node.owner
 	}
 	if node.children == nil then
 		node.children = {}
 	end
 	node.children[#node.children + 1] = child
+	player_selections[node.owner] = child
 	return child
 end
 
@@ -144,10 +157,30 @@ function begin_game()
 	screen = SCREEN.game
 	
 	-- testing
-	add_child(
-		PLAYER1, 200, 10, 15,
-		{PLAYER1.x, PLAYER1.y, PLAYER1.x + 50, PLAYER1.y + 50, PLAYER1.x + 200, PLAYER1.y + 10}
-	)
+	-- add_child(
+	-- 	PLAYER1, 200, 10, 15,
+	-- 	{PLAYER1.x, PLAYER1.y, PLAYER1.x + 50, PLAYER1.y + 50, PLAYER1.x + 200, PLAYER1.y + 10}
+	-- )
+end
+
+
+function hypot(dx, dy)
+	return math.sqrt(dx * dx + dy * dy)
+end
+
+
+function attempt_to_make_move(selected, click_x, click_y)
+	if hypot(selected.x - click_x, selected.y - click_y) < CLICK_RADIUS_NICE then
+		add_child(
+			selected,
+			math.random(10, 200),
+			math.random(-50, 50),
+			20,
+			{}
+		)
+		return true
+	end
+	return false
 end
 
 
@@ -159,11 +192,13 @@ function love.mousepressed(x, y, button, istouch, presses)
 	end
 	
 	if turn == TURN.p1 then
-		player1_selected = add_child(player1_selected, math.random(10, 200), math.random(-50, 50), 20, {})
-		turn = TURN.p1_moving
+		if attempt_to_make_move(player_selections[1], x, y) then
+			turn = TURN.p1_moving
+		end
 	elseif turn == TURN.p2 then
-		player2_selected = add_child(player2_selected, math.random(10, 200), math.random(-50, 50), 20, {})
-		turn = TURN.p2_moving
+		if attempt_to_make_move(player_selections[2], x, y) then
+			turn = TURN.p2_moving
+		end
 	end
 end
 
