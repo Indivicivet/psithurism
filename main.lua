@@ -109,7 +109,7 @@ function add_node_and_children_to_pixel_objects(node)
 	for y_offs = -node.radius, node.radius do
 		for x_offs = -node.radius, node.radius do
 			if hypot(x_offs, y_offs) <= node.radius then
-				pixel_objects[(node.y + y_offs) * WIDTH + node.x + x_offs] = node
+				pixel_objects[math.floor(node.y + y_offs) * WIDTH + math.floor(node.x + x_offs)] = node
 			end
 		end
 	end
