@@ -19,6 +19,7 @@ function love.load()
 	CLICK_RADIUS = 200
 	CLICK_RADIUS_NICE = 250
 	TRAVEL_TIME = 1
+	TRAVEL_STEPS = 4
 	MAX_VELOCITY = CLICK_RADIUS / TRAVEL_TIME
 	
 	-- MUSIC = love.audio.newSource("sound/bgmusic.mp3", "stream")
@@ -35,6 +36,8 @@ function love.load()
 	player_selections = {PLAYER1, PLAYER2}
 	
 	pixel_objects = {} -- map from pixel pos 1D to what object lives there
+	
+	wind = {x=0, y=100}
 	
 	screen = SCREEN.splash
 	turn = TURN.p1
@@ -172,22 +175,9 @@ function love.update(dt)
 	end
 end
 
-function add_child(node, x_offs, y_offs, radius, backlink)
-	child = {
-		x=node.x + x_offs,
-		y=node.y + y_offs,
-		parent=node,
-		backlink=backlink,
-		radius=radius,
-		owner=node.owner
-	}
-	if node.children == nil then
-		node.children = {}
-	end
-	node.children[#node.children + 1] = child
-	player_selections[node.owner] = child
-	return child
-end
+
+-- got inlined
+--function add_child(node, x_offs, y_offs, radius, backlink)
 
 
 function begin_game()
@@ -209,24 +199,45 @@ end
 function attempt_to_make_move(selected, click_x, click_y)
 	dx = click_x - selected.x
 	dy = click_y - selected.y
-	if hypot(dx, dy) < CLICK_RADIUS_NICE then
-		vx = dx / CLICK_RADIUS
-		vy = dy / CLICK_RADIUS
-		
+	click_dist = hypot(dx, dy)
+	if click_dist < CLICK_RADIUS_NICE then
 		-- check if we did the "nice clicking" but want to scale down to 1:
-		v2 = hypot(vx, vy)
-		if v2 > 1 then
-			vx = vx / v2
-			vy = vy / v2
+		if click_dist <= CLICK_RADIUS then
+			vx = dx * MAX_VELOCITY / CLICK_RADIUS
+			vy = dy * MAX_VELOCITY / CLICK_RADIUS
+		else
+			vx = dx * MAX_VELOCITY / click_dist
+			vy = dy * MAX_VELOCITY / click_dist
 		end
+		-- initial_vx = vx
+		-- initial_vy = vy
 		
-		add_child(
-			selected,
-			vx * MAX_VELOCITY,
-			vy * MAX_VELOCITY,
-			20,
-			{}
-		)
+		x = selected.x
+		y = selected.y
+		backlink = {x, y}
+		dt = TRAVEL_TIME / TRAVEL_STEPS
+		for i = 1, TRAVEL_STEPS do
+			-- Euler, for now. todo :: better?
+			x = x + dt * vx
+			y = y + dt * vy
+			vx = vx + dt * wind.x
+			vy = vy + dt * wind.y
+			backlink[#backlink + 1] = x
+			backlink[#backlink + 1] = y
+		end
+		child = {
+			x=x,
+			y=y,
+			parent=selected,
+			backlink=backlink,
+			radius=20,
+			owner=selected.owner
+		}
+		if selected.children == nil then
+			selected.children = {}
+		end
+		selected.children[#selected.children + 1] = child
+		player_selections[selected.owner] = child
 		return true
 	end
 	return false
