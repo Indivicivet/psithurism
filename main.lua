@@ -90,33 +90,6 @@ function draw_node_and_children(node)
 end
 
 
-function add_node_and_children_to_pixel_objects(node)
-	if node.backlink ~= nil then
-		-- todo
-	end
-	-- fill in a circle within the square
-	for y_offs = -node.radius, node.radius do
-		for x_offs = -node.radius, node.radius do
-			if hypot(x_offs, y_offs) <= node.radius then
-				pixel_objects[math.floor(node.y + y_offs) * WIDTH + math.floor(node.x + x_offs)] = node
-			end
-		end
-	end
-	if node.children ~= nil then
-		for i, child in ipairs(node.children) do
-			add_node_and_children_to_pixel_objects(child)
-		end
-	end
-end
-
-
-function update_pixel_objects()
-	pixel_objects = {}
-	add_node_and_children_to_pixel_objects(player1)
-	add_node_and_children_to_pixel_objects(player2)
-end
-
-
 function love.draw()
 	love.graphics.setBackgroundColor(0.2, 0.2, 0.2)
 	love.graphics.setFont(BASE_FONT)
@@ -154,6 +127,33 @@ function love.draw()
 	
 	-- mouse
 	draw_cursor()
+end
+
+
+function add_node_and_children_to_pixel_objects(node)
+	if node.backlink ~= nil then
+		-- todo
+	end
+	-- fill in a circle within the square
+	for y_offs = -node.radius, node.radius do
+		for x_offs = -node.radius, node.radius do
+			if hypot(x_offs, y_offs) <= node.radius then
+				pixel_objects[math.floor(node.y + y_offs) * WIDTH + math.floor(node.x + x_offs)] = node
+			end
+		end
+	end
+	if node.children ~= nil then
+		for i, child in ipairs(node.children) do
+			add_node_and_children_to_pixel_objects(child)
+		end
+	end
+end
+
+
+function update_pixel_objects()
+	pixel_objects = {}
+	add_node_and_children_to_pixel_objects(player1)
+	add_node_and_children_to_pixel_objects(player2)
 end
 
 
