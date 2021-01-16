@@ -184,7 +184,7 @@ function love.update(dt)
 			else
 				turn = TURN.p1
 			end
-			new_wind_amt = math.random(30, 200)
+			new_wind_amt = math.random(50, 300)
 			new_wind_dir = 2 * math.pi * math.random()
 			wind.x = new_wind_amt * math.cos(new_wind_dir)
 			wind.y = new_wind_amt * math.sin(new_wind_dir)
@@ -247,7 +247,7 @@ function attempt_to_make_move(selected, click_x, click_y)
 			y=y,
 			parent=selected,
 			backlink=backlink,
-			radius=20,
+			radius=10,
 			owner=selected.owner
 		}
 		if selected.children == nil then
