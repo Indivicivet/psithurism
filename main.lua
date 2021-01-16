@@ -261,23 +261,23 @@ function attempt_to_make_move(selected, click_x, click_y)
 end
 
 
-function love.mousepressed(x, y, button, istouch, presses)
+function love.mousepressed(m_x, m_y, button, istouch, presses)
 	if screen == SCREEN.splash then
 		begin_game()
 		return
 	end
 	
 	update_pixel_objects() -- is this the place? todo :: scratch head
-	clicked_idx = y * WIDTH + x
-	clicked = pixel_objects[clicked_idx]
+		-- ^ don't do it here - makes spam clicking a laggy w/ large nodes
+	clicked = pixel_objects[m_y * WIDTH + m_x]
 	if clicked ~= nil and clicked.owner == turn then
 		player_selections[turn] = clicked
 	elseif turn == TURN.p1 then
-		if attempt_to_make_move(player_selections[1], x, y) then
+		if attempt_to_make_move(player_selections[1], m_x, m_y) then
 			turn = TURN.p1_moving
 		end
 	elseif turn == TURN.p2 then
-		if attempt_to_make_move(player_selections[2], x, y) then
+		if attempt_to_make_move(player_selections[2], m_x, m_y) then
 			turn = TURN.p2_moving
 		end
 	end
