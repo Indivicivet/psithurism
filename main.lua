@@ -39,6 +39,8 @@ function love.load()
 	
 	wind = {x=0, y=100}
 	
+	WIND_VANE = {x=150, y=150, scale=0.5}
+	
 	screen = SCREEN.splash
 	turn = TURN.p1
 	moving_time = 0
@@ -154,6 +156,13 @@ function love.draw()
 		love.graphics.circle("line", player_selections[2].x, player_selections[2].y, CLICK_RADIUS)
 	end
 	
+	-- wind indicator
+	love.graphics.setColor(0.5, 0.5, 1)
+	wind_vane_end = {x=WIND_VANE.x + wind.x * WIND_VANE.scale, y=WIND_VANE.y + wind.y * WIND_VANE.scale}
+	love.graphics.circle("fill", WIND_VANE.x, WIND_VANE.y, 20)
+	love.graphics.line(WIND_VANE.x, WIND_VANE.y, wind_vane_end.x, wind_vane_end.y)
+	love.graphics.circle("fill", wind_vane_end.x, wind_vane_end.y, 10)
+	
 	-- mouse
 	draw_cursor()
 end
@@ -175,6 +184,10 @@ function love.update(dt)
 			else
 				turn = TURN.p1
 			end
+			new_wind_amt = math.random(30, 200)
+			new_wind_dir = 2 * math.pi * math.random()
+			wind.x = new_wind_amt * math.cos(new_wind_dir)
+			wind.y = new_wind_amt * math.sin(new_wind_dir)
 		end
 	end
 end
