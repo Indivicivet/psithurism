@@ -4,7 +4,7 @@ function love.load()
 	love.window.setMode(WIDTH, HEIGHT)
 	love.window.setTitle("boilerplate!")
 
-	BASE_FONTSIZE = 24
+	BASE_FONTSIZE = 36
 	BASE_FONT = love.graphics.newFont("fonts/arial.ttf", BASE_FONTSIZE)
 	
 	SCREEN = {splash=1, game=2}
@@ -31,7 +31,7 @@ function love.load()
 	love.mouse.setVisible(false)
 
 	PLAYER1 = {x=250, y=250, children={}, radius=30, owner=1}
-	PLAYER2 = {x=300, y=600, children={}, radius=30, owner=2}
+	PLAYER2 = {x=1000, y=600, children={}, radius=30, owner=2}
 	
 	player_selections = {PLAYER1, PLAYER2}
 	
@@ -39,7 +39,7 @@ function love.load()
 	
 	wind = {x=0, y=100}
 	
-	WIND_VANE = {x=150, y=150, scale=0.5}
+	WIND_VANE = {x=1000, y=150, scale=0.5}
 	
 	screen = SCREEN.splash
 	turn = TURN.p1
@@ -143,7 +143,7 @@ function love.draw()
 	
 	love.graphics.setColor(1, 1, 1)
 	
-	love.graphics.print(TURN_STRS[turn], 50, 50)
+	love.graphics.printf(TURN_STRS[turn], 50, 625, 300, "center")
 	
 	draw_node_and_children(PLAYER1)
 	draw_node_and_children(PLAYER2)
